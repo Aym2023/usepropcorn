@@ -52,8 +52,9 @@ const average = (arr) =>
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
-  return (
+return (
     <>
       <NavBar>
       <Logo />
@@ -62,12 +63,15 @@ export default function App() {
        </NavBar>
 
       <Main>
-      <ListBox>
+      <Box>
       <MovieList movies={movies} />
-        </ListBox>
-        
-      <WatchedBox />
-      </Main>
+        </Box>
+
+      <Box>
+          <WachtedSummary watched={watched} />
+          <WachtedMoviesList watched={watched} />
+        </Box>
+        </Main>
     </>
   );
 }
@@ -120,18 +124,18 @@ function Main({ children }) {
   );
 }
 
-function ListBox({ children }) {
-  const [isOpen1, setIsOpen1] = useState(true);
+function Box({ children }) {
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="box">
       <button
         className="btn-toggle"
-        onClick={() => setIsOpen1((open) => !open)}
+        onClick={() => setIsOpen((open) => !open)}
       >
-        {isOpen1 ? "–" : "+"}
+        {isOpen ? "–" : "+"}
       </button>
-      {isOpen1 && children }
+      {isOpen && children }
     </div>
   );
 }
@@ -161,27 +165,22 @@ function Movie({ movie }) {
   );
 }
 
-function WatchedBox() {
-  const [watched, setWatched] = useState(tempWatchedData);
-  const [isOpen2, setIsOpen2] = useState(true);
+// function WatchedBox() {
+//   const [isOpen2, setIsOpen2] = useState(true);
 
-  return (
-    <div className="box">
-      <button
-        className="btn-toggle"
-        onClick={() => setIsOpen2((open) => !open)}
-      >
-        {isOpen2 ? "–" : "+"}
-      </button>
-      {isOpen2 && (
-        <>
-          <WachtedSummary watched={watched} />
-          <WachtedList watched={watched} />
-        </>
-      )}
-    </div>
-  );
-}
+//   return (
+//     <div className="box">
+//       <button
+//         className="btn-toggle"
+//         onClick={() => setIsOpen2((open) => !open)}
+//       >
+//         {isOpen2 ? "–" : "+"}
+//       </button>
+//       {isOpen2 && (
+//       )}
+//     </div>
+//   );
+// }
 
 function WachtedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
@@ -213,7 +212,7 @@ function WachtedSummary({ watched }) {
   );
 }
 
-function WachtedList ({ watched }) {
+function WachtedMoviesList ({ watched }) {
 return (
           <ul className="list">
             {watched.map((movie) => (
