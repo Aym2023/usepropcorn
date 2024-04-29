@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Proptypes from 'prop-types'
+import Proptypes from 'prop-types';
 
 const continerStyle = {
 display:'flex',
@@ -11,7 +11,7 @@ const starContinerStyle = {
  display: 'flex',
 };
 
-StarsRating.prototype = {
+StarsRating.proptotype = {
   maxrating: Proptypes.number,
   size: Proptypes.number,
   color: Proptypes.string,
@@ -19,7 +19,7 @@ StarsRating.prototype = {
   messages: Proptypes.array,
   defaultrating: Proptypes.number,
   onSetRating: Proptypes.func
-}
+};
 
 export default function StarsRating ({ 
   maxrating = 5,
@@ -46,21 +46,23 @@ export default function StarsRating ({
     };
     
     return (
-       <div style={continerStyle} className='test'>
+       <div style={continerStyle} className={className} >
         <div style={starContinerStyle}>
        {Array.from({length: maxrating}, (_, i) => 
+      (
        <Stars 
        key={i} 
+       full={tempRating ? tempRating >= i + 1 :   rating >= i + 1 }
        onRate={() => handelRating(i + 1)} 
        onHaverin={() => setTempRating(i + 1) }
        onHaverOut={() => setTempRating(0)}
-       full={tempRating ? tempRating >= i + 1 :   rating >= i + 1 }
        color={color}
        size={size}
        />
-    )}
+    ))}
        </div>
-      <p style={textStyle}>{messages.length === maxrating ? messages[tempRating ? tempRating - 1 : rating - 1]  :  tempRating || rating || "" }</p>
+      <p style={textStyle}> {messages.length === maxrating ? messages[tempRating ? tempRating - 1 : rating - 1]  :  tempRating || rating || "" }
+      </p>
         </div>
     );
 }
@@ -68,7 +70,6 @@ export default function StarsRating ({
 
 function Stars ({
   onRate, full, onHaverin, onHaverOut, color, size}) {
-
     const starStyle ={
       width: `${size}px`,
       height: `${size}px`,
@@ -76,7 +77,6 @@ function Stars ({
       cursor: 'pointer',
      };
      
-
     return (
     <span   
     role="button"

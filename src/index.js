@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
+import {useState} from 'react';
 import StarsRating from './StarsRating';
-// import './index.css';./StarsRating
+
+// import TextExpand from './TextExpand';
+// import './index.css';
 // import App from './App';
 
 function Test () {
@@ -18,11 +21,11 @@ function Test () {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    {/* <App /> */}
     <StarsRating 
     maxrating={5} 
     messages={['Treibble', 'bad', 'Good', 'Okay', 'Ecxellent']}
     />
+
     <StarsRating 
     size = '24' 
     color='red' 
@@ -30,6 +33,9 @@ root.render(
     defaultrating={2}
     />
     <Test  />
+
+        {/* <App />
+    <TextExpand />  */}
   </React.StrictMode>
 );
 
