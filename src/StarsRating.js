@@ -22,7 +22,7 @@ StarsRating.proptotype = {
 };
 
 export default function StarsRating ({ 
-  maxrating = 5,
+  maxRating = 5,
   size = 48,
   color = '#fcc449',
   className = '',
@@ -48,7 +48,7 @@ export default function StarsRating ({
     return (
        <div style={continerStyle} className={className} >
         <div style={starContinerStyle}>
-       {Array.from({length: maxrating}, (_, i) => 
+       {Array.from({length: maxRating }, (_, i) => 
       (
        <Stars 
        key={i} 
@@ -61,7 +61,8 @@ export default function StarsRating ({
        />
     ))}
        </div>
-      <p style={textStyle}> {messages.length === maxrating ? messages[tempRating ? tempRating - 1 : rating - 1]  :  tempRating || rating || "" }
+      <p style={textStyle}>
+         {messages.length === maxRating ? messages[tempRating ? tempRating - 1 : rating - 1]  :  tempRating || rating || "" }
       </p>
         </div>
     );
