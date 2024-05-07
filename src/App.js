@@ -47,57 +47,80 @@ const tempWatchedData = [
   },
 ];
 
-
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = 'a0254084';
+const KEY = "a0254084";
+const query = "ttt";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isloading, setIsloading] = useState(false);
+  const [error, setError] = useState("");
 
+  useEffect(function () {
+      async function fetchMoveis () {
+        try {
+          setIsloading(true);
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+        );
+        if (!res.ok) throw new Error('Something went wrong with fetching moveis');
 
-useEffect(function () {
-  setIsloading(true);
-  async function fetchMoveis() {
-    const res= await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`);
-    const data = await res.json();
-    setMovies(data.Search);
-    setIsloading(false);
+        const data = await res.json();
+        if (data.Response === 'false') throw new Error('Movie not found');
+        setMovies(data.Search);
+      } catch (err) {
+         console.error(err.message);
+         setError(err.message);
+    }   finally{
+        setIsloading(false);
+    }
   }
-  fetchMoveis();
-}, []);
+    fetchMoveis();
+  }, []);
 
-return (
+  return (
     <>
       <NavBar>
-      <Logo />
-      <Search />
-      <NumResults movies={movies} />
-       </NavBar>
+        <Logo />
+        <Search />
+        <NumResults movies={movies} />
+      </NavBar>
 
       <Main>
-      <Box>
-        {isloading ? <Loading /> : <MovieList movies={movies} />}
+        <Box>
+          {/* {isloading ? <Loading /> : <MovieList movies={movies} />} */}
+          {isloading && <Loader />}
+          {error && <ErrorMessage message={error}/>}
+          {!error && !isloading && <MovieList movies={movies} />}
+          
         </Box>
 
-      <Box>
+        <Box>
           <WachtedSummary watched={watched} />
           <WachtedMoviesList watched={watched} />
         </Box>
-        </Main>
+      </Main>
     </>
   );
 }
 
-function NavBar( { children }) {
+function ErrorMessage({message}) {
   return (
-    <nav className="nav-bar">
-      { children }
-    </nav>
+    <p className="error" >
+      <span>⛔️</span>{message}
+    </p>
   );
+}
+
+function Loader() {
+  return <p className="loader">Loading...</p>;
+}
+
+function NavBar({ children }) {
+  return <nav className="nav-bar">{children}</nav>;
 }
 
 function Logo() {
@@ -123,8 +146,7 @@ function Search() {
   );
 }
 
-
-function NumResults( {movies }) {
+function NumResults({ movies }) {
   return (
     <p className="num-results">
       Found <strong>{movies.length}</strong> results
@@ -133,11 +155,7 @@ function NumResults( {movies }) {
 }
 
 function Main({ children }) {
-  return (
-    <main className="main">
-      { children }
-    </main>
-  );
+  return <main className="main">{children}</main>;
 }
 
 function Box({ children }) {
@@ -145,19 +163,12 @@ function Box({ children }) {
 
   return (
     <div className="box">
-      <button
-        className="btn-toggle"
-        onClick={() => setIsOpen((open) => !open)}
-      >
+      <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
         {isOpen ? "–" : "+"}
       </button>
-      {isOpen && children  }
+      {isOpen && children}
     </div>
   );
-}
-
-function Loading() {
-  return <p className='loader' >Loading...</p>;
 }
 
 function MovieList({ movies }) {
@@ -232,37 +243,35 @@ function WachtedSummary({ watched }) {
   );
 }
 
-function WachtedMoviesList ({ watched }) {
-return (
-          <ul className="list">
-            {watched.map((movie) => (
-            <WatchedMovie movie={movie} key={movie.imdbID}/>
-            ))}
-          </ul>
-
-);
+function WachtedMoviesList({ watched }) {
+  return (
+    <ul className="list">
+      {watched.map((movie) => (
+        <WatchedMovie movie={movie} key={movie.imdbID} />
+      ))}
+    </ul>
+  );
 }
 
-function WatchedMovie ({movie}) {
-return (
-              <li>
-                <img src={movie.Poster} alt={`${movie.Title} poster`} />
-                <h3>{movie.Title}</h3>
-                <div>
-                  <p>
-                    <span>⭐️</span>
-                    <span>{movie.imdbRating}</span>
-                  </p>
-                  <p>
-                    <span>🌟</span>
-                    <span>{movie.userRating}</span>
-                  </p>
-                  <p>
-                    <span>⏳</span>
-                    <span>{movie.runtime} min</span>
-                  </p>
-                </div>
-              </li>
-
-);
+function WatchedMovie({ movie }) {
+  return (
+    <li>
+      <img src={movie.Poster} alt={`${movie.Title} poster`} />
+      <h3>{movie.Title}</h3>
+      <div>
+        <p>
+          <span>⭐️</span>
+          <span>{movie.imdbRating}</span>
+        </p>
+        <p>
+          <span>🌟</span>
+          <span>{movie.userRating}</span>
+        </p>
+        <p>
+          <span>⏳</span>
+          <span>{movie.runtime} min</span>
+        </p>
+      </div>
+    </li>
+  );
 }
