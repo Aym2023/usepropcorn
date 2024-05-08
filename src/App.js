@@ -51,10 +51,10 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "a0254084";
-const tempQuery = "intrestellar";
+// const tempQuery = "intrestellar";
 
 export default function App() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState('inception');
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isloading, setIsloading] = useState(false);
