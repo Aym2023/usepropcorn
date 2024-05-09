@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import StarsRating from './StarsRating';
 
 const tempMovieData = [
   {
@@ -61,7 +62,7 @@ export default function App() {
   const [selectedId, setSelectId] = useState(null);
 
  function handelSelectMovei (id) {
-    setSelectId(id);
+    setSelectId(selectedId => id === selectedId ? null : id);
   }
 
   function handelCloseMovei() {
@@ -96,26 +97,32 @@ export default function App() {
     fetchMoveis();
   }, [query]);
 
-  return (
+  return(
     <>
       <NavBar>
         <Logo />
         <Search query={query} setQuery={setQuery}/>
         <NumResults movies={movies} />
       </NavBar>
-
       <Main>
         <Box>
           {/* {isloading ? <Loading /> : <MovieList movies={movies} />} */}
-          {isloading && <Loader />}
+          {isloading && < Loader />}
           {error && <ErrorMessage message={error}/>}
-          {!error && !isloading && <MovieList movies={movies} onSelectMovei={handelSelectMovei}/>}
-  
+          {!error && !isloading && <MovieList 
+          movies={movies} 
+          onSelectMovei={handelSelectMovei}
+          onCloseMovei={handelSelectMovei}
+          selectedId={selectedId}
+          />}
         </Box>
 
         <Box>
         {selectedId ? (
-        <MovieDetails selectedId={selectedId}  onCloseMovei={handelCloseMovei} />
+        <MovieDetails 
+        selectedId={selectedId}  
+        onCloseMoveiB={handelCloseMovei}
+         />
         ) : (
           <>
           <WachtedSummary watched={watched} />
@@ -191,20 +198,27 @@ function Box({ children }) {
   );
 }
 
-function MovieList({ movies, onSelectMovei, onCloseMovei }) {
+function MovieList({ movies, onSelectMovei, onCloseMovei, selectedId }) {
   return (
-    <ul className="list" >
+    <ul className="list list-movies" >
       {movies?.map((movie) => (
-        <Movie movie={movie} key={movie.imdbID}  onSelectMovei={onSelectMovei} onCloseMovei={[onCloseMovei]}/>
+        <Movie 
+        movie={movie} 
+        key={movie.imdbID}  
+        onSelectMovei={onSelectMovei} 
+        onCloseMovei={onCloseMovei}
+        selectedId={selectedId}
+        />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie, onSelectMovei, onCloseMovei }) {
+function Movie({ movie, onSelectMovei, onCloseMovei, selectedId}) {
   return (
-    <li  onClick={() => onSelectMovei(movie.imdbID)} onClick={onCloseMovei} >
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
+    <li onClick={() => onSelectMovei(selectedId ? movie.imdbID : onCloseMovei)} >
+
+      < img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
         <p>
@@ -216,16 +230,73 @@ function Movie({ movie, onSelectMovei, onCloseMovei }) {
   );
 }
 
-function MovieDetails({ selectedId, onCloseMovei}) {
-  return(
-<div className="details" >
-  <buuton btn-back className='btn-back' onClick={onCloseMovei}> 
-  &larr;
-  </buuton>
-  {selectedId}
-</div>
-  )
+function MovieDetails({ selectedId, onCloseMoveiB}) {
+  const [movei, setMovie] = useState({});
+  const {
+    Title: title,
+    Actors: actors,
+    Poster: poster, 
+    Director: director, 
+    Genre: genre,
+    Plot: plot,
+    Released: released,
+    Runtime: runtime,
+    Year: year,
+    imdbRating,
+   } = movei;
 
+  const [isloading, setIsloading] =useState(false);
+
+  useEffect(function() {
+    async function setMoviedetails() {
+        setIsloading(true);
+        const res = await fetch(
+        `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`);
+
+        const data = await res.json();
+        console.log(data);
+        setMovie(data);
+        setIsloading(false);
+       }
+       setMoviedetails();
+  }, [selectedId]);
+
+  return (
+      <div className="details" >
+    {isloading ? (
+       < Loader />
+    ) : (
+      <>
+      <header>
+      <buuton btn-back className='btn-back' onClick={onCloseMoveiB}> 
+      &larr;
+     </buuton>
+     <div className=".details-overview">
+     <h2>{title}</h2>
+     <img src={poster}  alt= {`Poster of ${movei} movie`}   />
+     <p>{released} &bull;{runtime}</p>
+     <p>{genre}</p>
+     <p >
+      <span>🌟{imdbRating} IMDB rating</span>
+     </p>
+     </div>
+     </header>
+
+     <section>
+      <div className="rating">
+      <StarsRating size={24} maxRating={10} />
+      </div>
+    <p>
+      <em>{plot}</em>
+    </p>
+    <p>Staring {actors}</p>
+    <p>Directed by {director}</p>
+     </section>
+    {selectedId}
+      </>
+      )}
+        </div>
+  );
 }
 
 // function WatchedBox() {
