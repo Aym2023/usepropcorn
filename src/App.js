@@ -10,10 +10,16 @@ const KEY = "a0254084";
 export default function App() {
   const [query, setQuery] = useState("inception");
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [isloading, setIsloading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectId] = useState(null);
+
+  // const [watched, setWatched] = useState([]);
+  const [watched, setWatched] = useState(function () {
+    const storageLocaly = localStorage.getItemItem('watched');
+     return JSON.parse(storageLocaly);  
+  });
+
 
   function handelSelectMovei(id) {
     setSelectId((selectedId) => (id === selectedId ? null : id));
@@ -25,11 +31,20 @@ export default function App() {
 
   function handelAddWatched(movei) {
     setWatched((watched) => [...watched, movei]);
+    // localStorage.setItem('watched', JSON.stringify([...watched, movei]));
   }
 
   function handelDeletedWtched (id) {
     setWatched((watched) => watched.filter((movei) => movei.imdbID !== id));
   }
+
+  useEffect(
+    function () {
+      localStorage.setItem('watched', JSON.stringify(watched));
+    }, 
+    [watched]
+  );
+
 
   useEffect(
     function () {
@@ -68,6 +83,7 @@ export default function App() {
     },
     [query]
   );
+
 
   return (
     <>
