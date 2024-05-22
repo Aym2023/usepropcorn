@@ -1,11 +1,13 @@
   import {useEffect, useState} from 'react';
 
-   export default function  useMovies() {
+  
+  const KEY = "a0254084";
+
+   export default function  useMovies(query) {
     const [movies, setMovies] = useState([]);
     const [isloading, setIsloading] = useState(false);
     const [error, setError] = useState("");
   
-    const KEY = "a0254084";
 
     useEffect(
         function () {

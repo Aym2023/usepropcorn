@@ -8,16 +8,11 @@ const average = (arr) =>
 
 
 export default function App() {
-  const [query, setQuery] = useState("inception");
+  const [query, setQuery] = useState("");
   const [selectedId, setSelectId] = useState(null);
+  const [moveis, error, isloading] = useMovies(query);
+  const [watched, setWatched] = useLocalStorageState([]);
 
-
-  useMovies();
-  // const [watched, setWatched] = useState([]);
-  const [watched, setWatched] = useState(function () {
-    const storageLocaly = localStorage.getItemItem('watched');
-     return JSON.parse(storageLocaly);  
-  });
 
 
   function handelSelectMovei(id) {
