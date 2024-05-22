@@ -1,19 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarsRating from "./StarsRating";
+import useMovies from './useMovies';
 
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = "a0254084";
 
 export default function App() {
   const [query, setQuery] = useState("inception");
-  const [movies, setMovies] = useState([]);
-  const [isloading, setIsloading] = useState(false);
-  const [error, setError] = useState("");
   const [selectedId, setSelectId] = useState(null);
 
+
+  useMovies();
   // const [watched, setWatched] = useState([]);
   const [watched, setWatched] = useState(function () {
     const storageLocaly = localStorage.getItemItem('watched');
@@ -38,53 +37,7 @@ export default function App() {
     setWatched((watched) => watched.filter((movei) => movei.imdbID !== id));
   }
 
-  useEffect(
-    function () {
-      localStorage.setItem('watched', JSON.stringify(watched));
-    }, 
-    [watched]
-  );
-
-
-  useEffect(
-    function () {
-      const controller = new  AbortController();
-
-      async function fetchMoveis() {
-        try {
-          setIsloading(true);
-          setError("");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`, {signal: controller.signal}
-          );
-          if (!res.ok)
-            throw new Error("Something went wrong with fetching moveis");
-
-          const data = await res.json();
-          if (data.Response === "false") throw new Error("Movie not found");
-          setMovies(data.Search);
-        } catch (err) {
-          console.log(err.message);
-          setError(err.message);
-        } finally {
-          setIsloading(false);
-        }
-        if (query.length < 3) {
-          setMovies([]);
-          setError("");
-          return;
-        }
-      }
-      fetchMoveis();
-
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
-
-
+  
   return (
     <>
       <NavBar>
@@ -154,6 +107,24 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  useEffect(
+    function () {
+    function callback (e) {
+     if(document.activeElement === inputEl.current) 
+        return;
+    if (e.code === 'Enter') {
+      inputEl.current.focus();
+      setQuery('');
+    }
+    }
+
+    document.addEventListener('Keydown', callback);
+    return () => document.addEventListener('downkey', callback);
+  }, [setQuery]
+);
+
   return (
     <input
       className="search"
@@ -161,6 +132,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
@@ -229,6 +201,16 @@ function MovieDetails({ selectedId, onCloseMoveiB, onAddWacted, watched }) {
 
   const WatchedUserRating = watched.find((movei) => movei.imdbID === selectedId)?.userRating;
 
+  const countRef = useRef(0) ;
+
+  useEffect(
+     function () {
+     if (userRating) countRef.current++;
+
+  },
+   [userRating]
+  );
+
   const {
     Title: title,
     Actors: actors,
@@ -251,6 +233,7 @@ function MovieDetails({ selectedId, onCloseMoveiB, onAddWacted, watched }) {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime),
       userRating,
+      userRatingDectuons: countRef.current,
     };
 
     onAddWacted(getMovieWatched);
